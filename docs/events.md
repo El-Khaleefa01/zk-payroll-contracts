@@ -462,6 +462,28 @@ data       (u64 draft_id, Symbol period_label, i128 total_amount, u32 employee_c
 |----------|-----------|
 | `LOW` | SDKs, dashboards, draft-review indexers |
 
+#### `payroll / treasury_balance_snapshot`
+
+Emitted after a successful treasury or payroll lifecycle transition. The
+snapshot is the same aggregate view returned by `get_safe_treasury_summary`:
+it contains token-level liquidity and reservation totals, but no employee row,
+salary commitment, proof, or recipient data.
+
+```
+topics[0]  Symbol("payroll")
+topics[1]  Symbol("treasury_balance_snapshot")
+topics[2]  Address asset
+data       (i128 total_balance, i128 available_balance,
+            i128 reserved_balance, i128 blocked_balance,
+            u64 observed_at, Symbol trigger)
+```
+
+`trigger` identifies the completed boundary: `deposit`, `run_prepared`,
+`run_finalized`, `run_cancelled`, `run_expired`, `run_executed`, or
+`emergency_withdrawal`. Amounts are raw token units and should be normalized
+using the asset's decimals. Consumers should treat the event as an
+observability snapshot, not as an authorization signal.
+
 #### `payroll / period_frozen` (#471)
 
 Emitted when a payroll period is frozen — either manually by the admin via
